@@ -1,0 +1,30 @@
+# Large Data Files (NEVER push raw datasets or large processed CSVs/Parquet)
+*.csv
+*.xlsx
+*.json
+*.parquet
+*.h5
+*.sqlite3
+data/raw/
+data/processed/
+
+# Jupyter Notebook Checkpoints & Cache
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# Virtual Environments
+venv/
+env/
+.venv/
+
+# Environment Variables & Secrets (API keys, DB credentials)
+.env
+
+# IDE / OS junk
+.DS_Store
+.vscode/
+.idea/
+
+# Log files
+*.log
