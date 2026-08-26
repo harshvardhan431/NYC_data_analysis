@@ -5,6 +5,7 @@ logger=setup_logger(__name__)
 
 def clean_data(df:pd.DataFrame)->pd.DataFrame:
     try:
+        print("before cleaning len is ",len(df))
         df=clean_heading(df)
         df=drop_duplicates(df)
         df=swap_date(df)
@@ -13,14 +14,18 @@ def clean_data(df:pd.DataFrame)->pd.DataFrame:
         df=add_trip_duration(df)
         df=remove_amounts_outliers(df)
         df=clean_trip_distance(df)
-        logging.info("just started clean data")
+        logging.info("cleaned  data")
+        print("after cleaning length is ",len(df))
         return df
+    except MemoryError:
+        logger.error(f"memory error restart the kernel {e}")
     except Exception as e:
+        logger.error(f"error occured {e}")
         raise RuntimeError(f"error occured {e}")
 
 
 def drop_duplicates(df:pd.DataFrame)->pd.DataFrame:
-    logging.info("drop duplicated function is hit")
+    logger.info("drop duplicated function is hit")
     before=len(df)
     df=df.drop_duplicates()
     after=len(df)
@@ -30,7 +35,7 @@ def drop_duplicates(df:pd.DataFrame)->pd.DataFrame:
 def clean_heading(df:pd.DataFrame)->pd.DataFrame:
     df.columns=df.columns.str.strip().str.lower().str.replace(" ","_")
     
-    logging.info("columns cleaned ")
+    logger.info("columns cleaned ")
     return df
 
 def swap_date(df:pd.DataFrame)->pd.DataFrame:
@@ -39,7 +44,7 @@ def swap_date(df:pd.DataFrame)->pd.DataFrame:
         df.loc[bad_dates,["tpep_pickup_datetime","tpep_dropoff_datetime"]]=\
             df.loc[bad_dates,["tpep_dropoff_datetime","tpep_pickup_datetime"]].values
         
-        logging.info("dates are swapped ")
+        logger.info("dates are swapped ")
     return df
 
 def check_total_amount(df:pd.DataFrame)->pd.DataFrame:
@@ -51,12 +56,12 @@ def check_total_amount(df:pd.DataFrame)->pd.DataFrame:
     lesser=df["total_amount"]<component_sum
     if lesser.any():
         df.loc[lesser,["total_amount"]]=component_sum[lesser]#here it fetches the rows with lesser condition and then we see that it makes them qual to sum using lesser as an index
-        logging.info("the amount is replaced correctly")
+        logger.info("the amount is replaced correctly")
 
     return df
 
 def clean_tip_extra_toll(df: pd.DataFrame) -> pd.DataFrame:
-    logging.info("cleaning of tip, extra, toll, and tax amounts")
+    logger.info("cleaning of tip, extra, toll, and tax amounts")
 
     df.loc[df["tip_amount"] < 0, "tip_amount"] = 0
     df.loc[df["extra"] < 0, "extra"] = 0
@@ -70,7 +75,7 @@ def clean_tip_extra_toll(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_trip_duration(df: pd.DataFrame) -> pd.DataFrame:
-    logging.info("trip_duration column is added for future use")
+    logger.info("trip_duration column is added for future use")
     df["tpep_pickup_datetime"] = pd.to_datetime(df["tpep_pickup_datetime"], errors='coerce')
     df["tpep_dropoff_datetime"] = pd.to_datetime(df["tpep_dropoff_datetime"], errors='coerce')
     df["trip_duration_minutes"] = (
@@ -81,7 +86,7 @@ def add_trip_duration(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def remove_outliers(df:pd.DataFrame,columns:list,multiplier:float=1.5)->pd.DataFrame:
-    logging.info("cleaning of outliers")
+    logger.info("cleaning of outliers")
     for col in columns:
         q1=df[col].quantile(0.25)
         q3=df[col].quantile(0.75)
@@ -96,14 +101,14 @@ def remove_outliers(df:pd.DataFrame,columns:list,multiplier:float=1.5)->pd.DataF
     return df
 
 def remove_amounts_outliers(df:pd.DataFrame)->pd.DataFrame:
-    logging.info("cleaning the outliers from amounts")
+    logger.info("cleaning the outliers from amounts")
     df=df[df["fare_amount"]>-100]
     df=df[df["tolls_amount"]>=0]
     df=df[(df["total_amount"]>-100) & (df["total_amount"]<500)]
     return df
 
 def clean_trip_distance(df:pd.DataFrame)->pd.DataFrame:
-    logging.info("cleaning trip_distance")
+    logger.info("cleaning trip_distance")
     df=df[(df["trip_distance"]>0)&(df["trip_distance"]<300)]
     return df
 

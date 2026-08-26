@@ -28,3 +28,9 @@ env/
 
 # Log files
 *.log
+
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

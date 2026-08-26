@@ -3,3 +3,4 @@ pandas
 pyarrow
 seaborn
 matplotlib
+ipykernel
