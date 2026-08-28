@@ -1,89 +1,111 @@
 # NYC Yellow Taxi Trip Analysis
 
-Exploratory data analysis of NYC yellow taxi trip data, covering data
-cleaning, outlier treatment, and univariate, bivariate, multivariate,
-and time-series analysis of fare, tip, and trip patterns.
+End-to-end exploratory data analysis project built on NYC Yellow Taxi trip records. This project demonstrates a practical analytics workflow: raw data ingestion, cleaning and validation, geographic enrichment with taxi zone metadata, feature engineering, and exploratory analysis across fare, tipping, trip distance, and pickup behavior.
 
-## Data
+## Project Overview
 
-- **Source:** NYC TLC Trip Record Data — `yellow_tripdata_2026-01.parquet`
-- **Supplementary:** Taxi zone lookup table, used to map `PULocationID` /
-  `DOLocationID` to pickup/dropoff borough and zone names
+The goal of this project is to transform raw NYC taxi trip data into a clean, analysis-ready dataset and use it to investigate operational and customer behavior patterns such as:
 
-## Project Structure
+- how trip distance relates to total fare
+- how payment method affects tipping behavior
+- when trip demand peaks by hour and day of week
+- how trip patterns vary across pickup and dropoff zones
 
-```
+This project emphasizes both **data analysis** and **analytics engineering practices**, including modular Python code, reproducible file paths, parquet outputs, and pipeline logging.
+
+## Dataset
+
+- **Primary source:** NYC TLC Yellow Taxi Trip Record Data
+- **Raw file used:** `yellow_tripdata_2026-01.parquet`
+- **Supplementary source:** `taxi_zone_lookup.csv`
+- **Purpose of lookup table:** map `PULocationID` and `DOLocationID` to borough and zone names for more interpretable geographic analysis
+
+## What This Project Does
+
+The pipeline:
+
+1. loads raw taxi trip data
+2. loads taxi zone lookup data
+3. merges pickup and dropoff zone metadata
+4. standardizes and cleans the dataset
+5. engineers time-based features
+6. saves a cleaned parquet output
+7. runs exploratory analysis functions for numerical, categorical, and multivariate patterns
+
+## Data Cleaning and Preparation
+
+The cleaning workflow includes:
+
+- column name normalization
+- duplicate removal
+- timestamp validation and correction when pickup/dropoff values are inconsistent
+- correction of negative or invalid monetary fields
+- reconciliation of `total_amount` against component fare fields
+- creation of `trip_duration` for downstream analysis
+- outlier filtering using domain-informed rules rather than a naive IQR-only approach
+
+This approach is designed to preserve realistic NYC taxi behavior, including short urban trips and long-tail higher-value rides such as airport travel.
+
+## Feature Engineering
+
+Additional analysis-ready features include:
+
+- `pickup_hour`
+- `pickup_dayofweek`
+- `trip_duration`
+- pickup and dropoff borough / zone labels
+- human-readable payment type labels
+
+These features support temporal, geographic, and behavioral analysis without requiring repeated transformation work in the notebook.
+
+## Analysis Scope
+
+The project covers multiple layers of exploratory data analysis:
+
+### Univariate Analysis
+- passenger count distribution
+- trip distance distribution
+- total fare / total amount distribution
+
+### Categorical Analysis
+- frequency patterns across payment type, vendor, and rate code
+
+### Bivariate Analysis
+- fare and total amount patterns by payment method
+- ride behavior by pickup hour
+- ride behavior by day of week
+- distance and fare relationships
+
+### Multivariate / Time-Based Analysis
+- numerical summaries and distribution comparisons
+- time-series patterns in trip volume
+- combined trend exploration across temporal and categorical dimensions
+
+## Tech Stack
+
+- **Python**
+- **Pandas**
+- **NumPy**
+- **PyArrow**
+- **Matplotlib**
+- **Seaborn**
+- **Jupyter Notebook**
+
+## Repository Structure
+
+```text
 analysis/
 ├── data/
-│   ├── raw/            # original parquet + zone lookup CSV
-│   └── processed/      # cleaned_taxi_data.parquet (pipeline output)
+│   ├── raw/                  # source parquet and taxi zone lookup CSV
+│   └── processed/            # cleaned pipeline output
 ├── notebook/
-│   └── eda.ipynb        # exploratory analysis, charts, and findings
+│   └── eda.ipynb             # charts, exploration, and commentary
 ├── src/
-│   ├── load_data.py     # raw data loading
-│   ├── clean_data.py    # cleaning, validation, outlier treatment
-│   ├── analysis.py       # EDA, bivariate/multivariate, time-series functions
-│   └── logger_config.py  # logging setup
-├── config.py             # file paths and shared constants
-├── main.py                # end-to-end pipeline script
-└── requirements.txt
-```
-
-## Setup
-
-```bash
-pip install -r requirements.txt
-python main.py
-```
-
-Running `main.py` loads the raw data, cleans it, saves the cleaned
-dataset to `data/processed/cleaned_taxi_data.parquet`, and runs the
-analysis functions. For the full exploratory walkthrough with charts
-and commentary, open `notebook/eda.ipynb`.
-
-## Data Cleaning
-
-Cleaning steps applied, in order:
-
-1. Column name normalization (lowercase, stripped, underscored)
-2. Duplicate row removal
-3. Pickup/dropoff timestamp validation (swapped where pickup > dropoff)
-4. Negative value correction for tip, extra, tolls, tax, and surcharge fields
-5. `total_amount` reconciliation against its component fields
-6. Trip duration calculation from pickup/dropoff timestamps
-7. Outlier treatment:
-   - Manual domain-informed bounds were used instead of IQR, since IQR
-     removed a large share of legitimate short trips due to the strong
-     right-skew in `trip_distance` and `total_amount` (heavy long tail
-     from airport/long-haul trips)
-   - `fare_amount > -100`, `0 <= tolls_amount`, `-100 < total_amount < 500`
-   - `trip_distance` bounded to a realistic range for NYC trips
-
-**Row count impact:** [FILL IN — run the instrumented version of
-`clean_data()` to get the before/after count for each step, then
-summarize here, e.g. "removed X% total: Y% duplicates, Z% outlier
-bounds on trip_distance/amount fields"]
-
-## Analysis
-
-- **Univariate:** distribution of passenger count, trip distance, and
-  total fare amount
-- **Bivariate:** fare amount vs. payment type, pickup hour, and day of
-  week; trip distance vs. fare amount and passenger count
-- **Multivariate:** correlation across numerical trip variables;
-  fare patterns across combined dimensions (e.g. hour × payment type,
-  hour × borough)
-- **Time series:** trip volume by hour of day and day of month
-
-## Key Findings
-
-[FILL IN once notebook analysis is finalized — this is the section
-recruiters read first. Aim for 3-5 concrete, numbers-backed findings, e.g.:
-- "Median trip distance is 1.9 miles; the top 25% of trips exceed 3.87 miles"
-- "Credit card trips average X% higher fares than cash trips"
-- "Trip volume peaks at [hour] and is lowest at [hour]"
-- "[Borough] has the highest average fare, driven by [reason]"]
-
-## Next Steps
-
-- Power BI dashboard for interactive exploration of the cleaned dataset
+│   ├── load_data.py          # raw data ingestion
+│   ├── clean_data.py         # cleaning and validation logic
+│   ├── analysis.py           # EDA and analytical functions
+│   └── logger_config.py      # logging configuration
+├── config.py                 # shared file paths
+├── main.py                   # end-to-end execution script
+├── requirements.txt
+└── README.md

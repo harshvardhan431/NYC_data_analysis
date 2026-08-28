@@ -3,23 +3,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from src.logger_config import setup_logger
 import logging
-logging=setup_logger(__name__)
+logger=setup_logger(__name__)
 
 
 
 def run_analysis(df:pd.DataFrame)->pd.DataFrame:
     try:
-        logging.info("analysis is be hit")
-        #df=passenger_analysis(df)
-        #df=trip_distance_analysis(df)
-        #df=total_amount_analysis(df)
+        logger.info("analysis is be hit")
         df=bivariate_numerical_numerical(df)
         df=time_analysis(df)
         df=mulitvariate_analysis(df)
         df=bivariate_categorical_analysis(df)
         df=categorical_analysis(df)
     except Exception as e:
-        logging.error(f"error occured is {e}",exc_info=True)
+        logger.error(f"error occured is {e}",exc_info=True)
     return df
 
 def passenger_analysis(df:pd.DataFrame)->pd.DataFrame:
@@ -84,7 +81,7 @@ def box_representation(df:pd.DataFrame,numerical_cols:list)->pd.DataFrame:
 
 def  categorical_analysis(df:pd.DataFrame)->pd.DataFrame:
     cat_cols=["ratecodeid","vendorid","payment_type"]
-    logging.info("categorical analysiss route is being hit ")
+    logger.info("categorical analysiss route is being hit ")
     for cols in cat_cols:
         plt.figure(figsize=(6,4))
         sns.countplot(x=cols,data=df,order=df[cols].value_counts().index)
@@ -96,7 +93,7 @@ def  categorical_analysis(df:pd.DataFrame)->pd.DataFrame:
 
 #bivariate analysis 
 def bivariate_numerical_numerical(df:pd.DataFrame)->pd.DataFrame:
-    sample=df.sample(20000,random_state=42)
+    sample=df.sample(min(20000,len(df)),random_state=42)#always right minimum here so it is easy if there are less than 20 thosuhand rows 
     plt.figure(figsize=(8,5))
     plt.subplot(1,3,1)
     sns.scatterplot(x="trip_distance",y="total_amount",data=sample,alpha=0.1)
@@ -119,7 +116,7 @@ def bivariate_numerical_numerical(df:pd.DataFrame)->pd.DataFrame:
 #categorical vs numerical 
 # bivariate analysis - categorical vs numerical
 def bivariate_categorical_analysis(df: pd.DataFrame,target: str = "total_amount") -> pd.DataFrame:
-    logging.info("categorical analysis route is being loaded")
+    logger.info("categorical analysis route is being loaded")
     bi_cals=["payment_type","pickup_hour","pickup_dayofweek"]
     for cols in bi_cals:
         plt.figure(figsize=(14, 4))
@@ -192,7 +189,7 @@ def mulitvariate_analysis(df:pd.DataFrame)->pd.DataFrame:
 
 #time series analysis
 def time_analysis(df:pd.DataFrame)->pd.DataFrame:
-    logging.info("time series analysis route is hit")
+    logger.info("time series analysis route is hit")
     df["hour"]=df["tpep_dropoff_datetime"].dt.hour
     df["day"]=df["tpep_dropoff_datetime"].dt.day
 
