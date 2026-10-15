@@ -29,7 +29,7 @@ def drop_duplicates(df:pd.DataFrame)->pd.DataFrame:
     before=len(df)
     df=df.drop_duplicates()
     after=len(df)
-    print(f"the rows are reduced from {before} to {after}")
+    print(f"the rows are reduced from {before} to {after} after removing duplicates")
     return df
 
 def clean_heading(df:pd.DataFrame)->pd.DataFrame:

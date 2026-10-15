@@ -57,10 +57,10 @@ print(summary)
 box=box_representation(df,numerical_cols)
 print(box)
 #%% Eda categorical 
-cat_result=categorical_analysis(df,cat_cols)
+cat_result=categorical_analysis(df)
 print(cat_result)
 print(f"Before: {before_count}, After: {len(df)}, Removed: {before_count - len(df)} ({(before_count-len(df))/before_count*100:.2f}%)")
-logger.info("categorical analysis is done ")
+logger.info("categorical analysis is done  ")
 
 
 
