@@ -17,7 +17,7 @@ def clean_data(df:pd.DataFrame)->pd.DataFrame:
         logging.info("cleaned  data")
         print("after cleaning length is ",len(df))
         return df
-    except MemoryError:
+    except MemoryError as e:
         logger.error(f"memory error restart the kernel {e}")
     except Exception as e:
         logger.error(f"error occured {e}")

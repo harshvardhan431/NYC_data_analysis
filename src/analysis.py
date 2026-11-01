@@ -64,7 +64,7 @@ def box_representation(df:pd.DataFrame,numerical_cols:list)->pd.DataFrame:
         if cols=="trip_distance":
             plt.figure(figsize=(12,4))
             plt.subplot(1,3,1)
-            plt.histplot(df[cols],kde=True,bins=50)
+            sns.histplot(df[cols],kde=True,bins=50)
             plt.title(f"histogram of trip_distance")
         else:
           plt.figure(figsize=(12,4))
